@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crypto Web API Scraper UI</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-2LmFYQmP+rwba3RjqGnKhz8g0XrPIYT2J+U6rfw/EKs=" crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <!-- Page Heading -->
+  <div class="mt-20 flex flex-col items-center gap-5">
+    <h1 class="text-4xl font-bold">Crypto Web API Scraper UI and Data Visualisation</h1>
+    <p class="text-lg text-gray-600">Enter a url link and choose a scraping action.</p>
+  </div>
+
+  <!-- Form -->
+  <form id="form" method="POST" action=""  onsubmit="return false;">
+  <!-- Textbox -->
+  <div class="flex justify-center mt-10">
+    <input type="text" id="inputText"
+      class="w-full max-w-[900px] h-[70px] p-3 rounded-lg border border-gray-300 shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+      placeholder="Enter url link here..." autocomplete="on">
+  </div>
+  </form>
+
+
+  <!-- Buttons -->
+  <div id="btn_div" class="flex flex-wrap justify-center gap-4 mt-8">
+    <button id="scrape1" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded shadow">Auto Scrape 1</button>
+    <button id="scrape2" class="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded shadow">Auto Parse Scrape 2</button>
+    <button id="scrape3" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6 py-2 rounded shadow">Auto Parse Scrape 3</button>
+    <button id="scrape4" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded shadow">Auto Parse Scrape 4</button>
+    <button id="scrape5" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded shadow">Auto Parse Scrape 5</button>
+    <button id="visual1" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold px-6 py-2 rounded shadow">Visual 1</button>
+    <button id="visual2" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-2 rounded shadow">Visual 2</button>
+  </div>
+
+  <!-- Output Area -->
+  <div id="output"
+    class="mt-10 mx-auto max-w-[900px] p-5 bg-white rounded-lg shadow-md border border-gray-300 overflow-auto min-h-[100px]">
+    <p id="outputText" class="text-gray-500 italic">Output will appear here...</p>
+    <p id="output_" class="text-gray-500 italic"></p>
+    <div id="error_message" class=" animate-spin transition-transform rotate-45 duration-500 hidden mt-4"></div>
+    <strong id="msg" class="text-black"></strong>
+  </div>
+
+  <script>
+    const apiMap = {
+      scrape1: 'api_runner',
+      scrape2: 'api_runner_two',
+      scrape3: 'api_runner_three',
+      scrape4: 'api_runner_four',
+      scrape5: 'api_runner_five',
+      visual1: 'api_runner_vsix',
+      visual2: 'api_runner_vseven'
+    };
+    
+    const error_message = document.getElementById('error_message');
+    const msg = document.getElementById('msg');
+    const outputText = document.getElementById('outputText');
+    const output_ = document.getElementById('output_');
+    const form = document.getElementById('form');
+    
+    Object.keys(apiMap).forEach(buttonId => {
+      const button = document.getElementById(buttonId);
+      if (button) {
+        button.addEventListener('click', function (e) {
+          e.preventDefault();
+    
+          const inputText = document.getElementById('inputText').value.trim();
+          const endpoint = apiMap[buttonId];
+    
+          // Require URL input only for /api_runner
+          if (endpoint === 'api_runner' && !inputText) {
+            error_message.classList.remove('hidden');
+            msg.textContent = "⚠️ Please enter a URL.";
+            return;
+          }
+    
+
+          // Display API endpoint for debugging
+          form.setAttribute('action', `/${endpoint}`);
+          outputText.innerHTML = form.getAttribute('action');
+          alert(`Calling endpoint: ${form.getAttribute('action')}`);
+    
+          error_message.classList.remove('hidden');
+          msg.textContent = '⏳ Gathering and Retrieving Data...';
+    
+          $.ajax({
+            url: `http://127.0.0.1:5000/${endpoint}`,
+            method: endpoint === 'api_runner' ? 'POST' : 'GET',
+            headers: endpoint === 'api_runner' ? {
+              "Content-Type": "text/html; charset=utf-8"
+            } : {},
+            contentType: endpoint === 'api_runner' ? 'application/json' : undefined,
+            data: endpoint === 'api_runner' ? JSON.stringify({ url: inputText }) : undefined,
+            dataType: 'json', // Expecting an HTML table from the server
+            success: function (res_) {
+              console.log("✅ Success - Received HTML response:");
+              msg.textContent = "✅ Success: Data Retrieved";
+              //output_.innerHTML = `<div>JSON.stringify(${res_})</div>`;
+              output_.append(`<div>(${JSON.stringify({res_})})</div>`);
+            },
+            error: function (xhr, status, error) {
+              console.error("❌ AJAX Error:", {
+                status,
+                error,
+                response: xhr.responseText
+              });
+    
+              msg.textContent = `❌ Error: ${xhr.status} - ${xhr.statusText}`;
+              output_.innerHTML = `<div style="color: red;"><pre>${xhr.responseText || "No response body"}</pre></div>`;
+            }
+          });
+        });
+      }
+    });    
+  </script>
+</body>
+</html>
