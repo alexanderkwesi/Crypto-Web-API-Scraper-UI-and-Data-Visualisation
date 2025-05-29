@@ -1,0 +1,26 @@
+{
+    "name": "BlockChain Automation App",
+    "displayName": "Scraping For Data Analysis",
+    "description": "Scraping",
+    "scripts": {
+        "start": "Port=3000 open template/index.html",
+        "build": "Port=5000 python3.12 backend/cry.py",
+        "dev": "Port=3000 concurrently \"npm start\" \"npm run build\" "
+    },
+    "dependencies": {
+        "beautifulsoup-": "^1.2.6",
+        "concurrently": "^9.1.2",
+        "cross-env": "^7.0.3",
+        "matplotlib": "^1.0.0",
+        "nodemon": "^2.0.4",
+        "open": "^10.1.2",
+        "request": "^2.88.2",
+        "seaborn": "^0.0.1-security",
+        "tabulate": "^1.0.0",
+        "tabulation": "^1.0.0"
+    },
+    "engines": {
+        "node": ">=14.0.0",
+        "npm": ">=6.0.0"
+    }
+}
